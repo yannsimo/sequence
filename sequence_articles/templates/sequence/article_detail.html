@@ -1,0 +1,252 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ article.title }} - Sequence{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Animation d'entrée */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease forwards;
+  }
+
+  /* Styles pour le contenu de l'article */
+  .article-content {
+    line-height: 1.8;
+  }
+
+  .article-content p {
+    margin-bottom: 1.5rem;
+  }
+
+  .article-content h2 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-top: 2.5rem;
+    margin-bottom: 1.25rem;
+    color: #333;
+  }
+
+  .article-content h3 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    color: #444;
+  }
+
+  .article-content ul, .article-content ol {
+    margin-bottom: 1.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .article-content li {
+    margin-bottom: 0.5rem;
+  }
+
+  .article-content a {
+    color: #e9236b;
+    text-decoration: underline;
+    text-decoration-color: rgba(233, 35, 107, 0.3);
+    text-underline-offset: 2px;
+    transition: text-decoration-color 0.2s;
+  }
+
+  .article-content a:hover {
+    text-decoration-color: rgba(233, 35, 107, 1);
+  }
+
+  .article-content blockquote {
+    border-left: 4px solid #e9236b;
+    padding-left: 1.5rem;
+    margin: 1.5rem 0;
+    font-style: italic;
+    color: #555;
+  }
+
+  /* Style pour les images de galerie */
+  .gallery-image {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .gallery-image:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Style pour le formulaire de commentaire */
+  .form-input:focus {
+    border-color: #e9236b;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(233, 35, 107, 0.1);
+  }
+
+  /* Style des tags */
+  .tag-pill {
+    transition: all 0.2s ease;
+  }
+
+  .tag-pill:hover {
+    background-color: #e9236b;
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Fil d'Ariane -->
+<div class="bg-gray-100">
+  <div class="container mx-auto px-4 py-2">
+    <div class="text-sm text-gray-600">
+      <a href="{% url 'home' %}" class="hover:text-red-600 transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      {% if article.category %}
+      <a href="{% url 'category_detail' article.category.slug %}" class="hover:text-red-600 transition-colors">{{ article.category.name }}</a>
+      <span class="mx-2">›</span>
+      {% endif %}
+      <span class="text-gray-800 font-medium">{{ article.title|truncatechars:40 }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- En-tête de l'article -->
+<header class="container mx-auto px-4 py-10">
+  <div class="max-w-4xl mx-auto">
+    <!-- Catégorie -->
+    {% if article.category %}
+    <a href="{% url 'category_detail' article.category.slug %}" class="inline-block mb-4 py-1 px-3 bg-red-600 text-white text-sm font-semibold rounded-full hover:bg-red-700 transition-colors">
+      {{ article.category.name }}
+    </a>
+    {% endif %}
+
+    <!-- Titre -->
+    <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight text-gray-900">
+      {{ article.title }}
+    </h1>
+
+    <!-- Méta-informations -->
+    <div class="flex items-center mb-8 text-gray-600">
+      <!-- Auteur -->
+      <div class="flex items-center mr-6">
+        {% if article.author.profile_image %}
+        <img src="{{ article.author.profile_image.url }}" alt="{{ article.author.username }}" class="rounded-full w-10 h-10 mr-3">
+        {% else %}
+        <img src="{% static 'img/avatar-default.jpg' %}" alt="{{ article.author.username }}" class="rounded-full w-10 h-10 mr-3">
+        {% endif %}
+        <div>
+          <div class="font-medium text-gray-800">{{ article.author.get_full_name|default:article.author.username }}</div>
+          <div class="text-xs">Auteur</div>
+        </div>
+      </div>
+
+      <!-- Date de publication -->
+      <div class="flex items-center mr-6">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+        <span>{{ article.published_at|date:"d F Y" }}</span>
+      </div>
+
+      <!-- Nombre de vues -->
+      <div class="flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+        </svg>
+        <span>{{ article.views_count }} vues</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Image principale -->
+{% if article.featured_image %}
+<div class="container mx-auto px-4 mb-12">
+  <div class="max-w-4xl mx-auto">
+    <div class="rounded-xl overflow-hidden shadow-lg animate-fade-in">
+      <img src="{{ article.featured_image.url }}" alt="{{ article.title }}" class="w-full h-auto">
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Contenu principal de l'article -->
+<main class="container mx-auto px-4 mb-16">
+  <div class="max-w-4xl mx-auto">
+    <!-- Résumé -->
+    <div class="mb-8 text-xl text-gray-700 font-medium italic border-l-4 border-red-600 pl-6 py-2 animate-fade-in">
+      {{ article.summary }}
+    </div>
+
+    <!-- Contenu de l'article -->
+    <div class="article-content text-gray-800 animate-fade-in">
+      {{ article.content|safe|linebreaks }}
+    </div>
+
+    <!-- Galerie d'images (si elle existe) -->
+    {% if article.images.exists %}
+    <div class="mt-12 mb-12">
+      <h2 class="text-2xl font-bold mb-6 relative inline-block">
+        Galerie
+        <span class="absolute h-1 w-1/2 bg-red-600 bottom-0 left-0"></span>
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for img in article.images.all %}
+        <div class="gallery-image rounded-lg overflow-hidden shadow-md">
+          <img src="{{ img.image.url }}" alt="{{ img.caption|default:article.title }}" class="w-full h-64 object-cover">
+          {% if img.caption %}
+          <div class="p-3 bg-gray-100 text-sm text-gray-700">
+            {{ img.caption }}
+          </div>
+          {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Partage sur les réseaux sociaux -->
+    <div class="mb-12 border-t border-b border-gray-200 py-6">
+      <h3 class="text-lg font-semibold mb-4">Partagez cet article</h3>
+      <div class="flex space-x-4">
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M22.675 0h-21.35c-.732 0-1.325.593-1.325 1.325v21.351c0 .731.593 1.324 1.325 1.324h11.495v-9.294h-3.128v-3.622h3.128v-2.671c0-3.1 1.893-4.788 4.659-4.788 1.325 0 2.463.099 2.795.143v3.24l-1.918.001c-1.504 0-1.795.715-1.795 1.763v2.313h3.587l-.467 3.622h-3.12v9.293h6.116c.73 0 1.323-.593 1.323-1.325v-21.35c0-.732-.593-1.325-1.325-1.325z"/>
+          </svg>
+        </a>
+        <a href="https://twitter.com/intent/tweet?text={{ article.title }}&url={{ request.build_absolute_uri }}" target="_blank" class="bg-sky-500 text-white p-2 rounded-full hover:bg-sky-600 transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/>
+          </svg>
+        </a>
+        <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}&title={{ article.title }}" target="_blank" class="bg-blue-800 text-white p-2 rounded-full hover:bg-blue-900 transition-colors">
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+          </svg>
+        </a>
+        <a href="mailto:?subject={{ article.title }}&body={{ request.build_absolute_uri }}" class="bg-gray-600 text-white p-2 rounded-full hover:bg-gray-700 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+
+  </div>
+</main>
+
+<script>
+  // Incrémenter le compteur de vues (via une requête AJAX)
+  document.addEventListener('DOMContentLoaded', function() {
+    // Vous pouvez implémenter ici une requête AJAX pour incrémenter les vues
+    // sans avoir à recharger la page
+  });
+</script>
+{% endblock %}

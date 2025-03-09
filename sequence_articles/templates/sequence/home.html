@@ -1,0 +1,382 @@
+ {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - Sequence{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Définition des couleurs personnalisées */
+  .bg-sequence {
+    background-color: #CE3131;
+  }
+
+  .text-sequence {
+    color: #CE3131;
+  }
+
+  .border-sequence {
+    border-color: #CE3131;
+  }
+
+  .hover\:bg-sequence:hover {
+    background-color: #CE3131;
+  }
+
+  .hover\:text-sequence:hover {
+    color: #CE3131;
+  }
+
+  .hover\:bg-sequence-dark:hover {
+    background-color: #B52828;
+  }
+
+  .from-sequence {
+    --tw-gradient-from: #CE3131;
+  }
+
+  .to-sequence-light {
+    --tw-gradient-to: #E54646;
+  }
+
+  .hover\:bg-sequence-light:hover {
+    background-color: #FBE9E9;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease forwards;
+  }
+
+  .animate-delay-100 { animation-delay: 0.1s; }
+  .animate-delay-200 { animation-delay: 0.2s; }
+  .animate-delay-300 { animation-delay: 0.3s; }
+  .animate-delay-400 { animation-delay: 0.4s; }
+
+  .hover-scale {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .article-card {
+    transition: all 0.3s ease;
+  }
+
+  .article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Style pour la barre de recherche */
+  .search-bar {
+    transition: all 0.3s ease;
+  }
+
+  .search-bar:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-button {
+    transition: all 0.2s ease;
+  }
+
+  .search-button:hover {
+    background-color: #B52828;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Barre de recherche -->
+<div class="bg-gray-50 py-4 mb-4 border-b border-gray-200">
+  <div class="container mx-auto px-4">
+    <form action="{% url 'search' %}" method="get" class="search-bar max-w-3xl mx-auto flex rounded-lg overflow-hidden shadow-sm">
+      <input
+        type="text"
+        name="query"
+        placeholder="Rechercher un article..."
+        class="flex-grow py-3 px-4 border-0 focus:ring-0 focus:outline-none"
+        required
+      >
+      <button type="submit" class="search-button bg-sequence text-white px-6 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+          <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+        </svg>
+        Rechercher
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Article en vedette -->
+{% if featured_article %}
+<section class="py-8 relative">
+  <!-- Badge "À la une" -->
+  <div class="absolute top-6 right-6 bg-sequence text-white py-2 px-4 rounded-full font-bold shadow-md z-10 flex items-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118l-2.8-2.034c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+    </svg>
+    À la une
+  </div>
+
+  <div class="container mx-auto px-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+      <!-- Image à gauche avec effet -->
+      <div class="relative animate-fade-in-up opacity-0">
+       <div class="relative h-auto overflow-hidden">
+        {% if featured_article.featured_image %}
+        <img src="{{ featured_article.featured_image.url }}"
+             alt="{{ featured_article.title }}"
+             class="w-full object-contain max-h-[550px]">
+        {% else %}
+        <img src="{% static 'img/default-article.jpg' %}"
+             alt="{{ featured_article.title }}"
+             class="w-full object-contain max-h-[550px]">
+        {% endif %}
+        <!-- Overlay gradient subtil -->
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/40 rounded-xl"></div>
+      </div>
+      </div>
+
+      <!-- Contenu à droite -->
+      <div class="animate-fade-in-up opacity-0 animate-delay-200">
+        <div class="px-4 lg:px-8">
+          <!-- Catégorie -->
+          <div class="mb-4">
+            <span class="inline-block py-2 px-3 bg-gradient-to-r from-sequence to-sequence-light text-white rounded-full text-sm font-semibold">
+              {% if featured_article.category %}
+                {{ featured_article.category.name }}
+              {% else %}
+                Article en vedette
+              {% endif %}
+            </span>
+          </div>
+
+          <!-- Titre principal -->
+          <h1 class="text-4xl md:text-5xl font-extrabold mb-6 leading-tight">
+            {{ featured_article.title }}
+          </h1>
+
+          <!-- Sous-titre/Résumé -->
+          <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+            {{ featured_article.summary }}
+          </p>
+
+          <!-- Méta-informations -->
+          <div class="flex items-center mb-6">
+            {% if featured_article.author.profile_image %}
+            <img src="{{ featured_article.author.profile_image.url }}"
+                 alt="{{ featured_article.author.username }}"
+                 class="rounded-full mr-3"
+                 width="40" height="40">
+            {% else %}
+            <img src="{% static 'img/avatar-default.jpg' %}"
+                 alt="{{ featured_article.author.username }}"
+                 class="rounded-full mr-3"
+                 width="40" height="40">
+            {% endif %}
+            <div>
+              <div class="font-semibold">Par {{ featured_article.author.get_full_name|default:featured_article.author.username }}</div>
+              <div class="text-sm text-gray-500">Publié le {{ featured_article.published_at|date:"d F Y" }}</div>
+            </div>
+          </div>
+
+          <!-- Boutons d'action -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <a href="{% url 'article_detail' featured_article.slug %}"
+               class="px-6 py-3 bg-sequence text-white font-semibold rounded-lg shadow-md hover:bg-sequence-dark transition duration-300 flex items-center justify-center hover:shadow-lg">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+              Lire l'article complet
+            </a>
+            {% if featured_article.category %}
+            <a href="{% url 'category_detail' featured_article.category.slug %}"
+               class="px-6 py-3 bg-white text-sequence font-semibold rounded-lg shadow-md border-2 border-sequence hover:bg-sequence-light transition duration-300 flex items-center justify-center">
+              Plus d'articles sur {{ featured_article.category.name }}
+            </a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<!-- Séparateur décoratif -->
+<div class="container mx-auto px-4 my-10">
+  <div class="flex items-center">
+    <div class="flex-grow h-px bg-gray-200"></div>
+    <div class="mx-4 text-sequence">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+      </svg>
+    </div>
+    <div class="flex-grow h-px bg-gray-200"></div>
+  </div>
+</div>
+
+<!-- Liste des articles -->
+<section class="py-10">
+  <div class="container mx-auto px-4">
+    <div class="mb-10">
+      <h2 class="text-3xl font-bold mb-3 relative inline-block">
+        Nos derniers articles
+        <span class="absolute h-1.5 w-1/2 bg-sequence bottom-0 left-0"></span>
+      </h2>
+      <p class="text-gray-600">Découvrez nos publications récentes sur l'écologie et l'alimentation durable</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {% for article in articles %}
+      <div class="animate-fade-in-up opacity-0" style="animation-delay: {{ forloop.counter|add:3 }}00ms;">
+        <article class="article-card bg-white rounded-xl overflow-hidden shadow-md h-full">
+          <!-- Catégorie badge -->
+          {% if article.category %}
+          <span class="absolute top-4 left-4 bg-sequence text-white py-1 px-3 rounded-full text-xs font-semibold z-10">
+            {{ article.category.name }}
+          </span>
+          {% endif %}
+
+          <!-- Image -->
+           <div class="relative h-auto overflow-hidden">
+            {% if article.featured_image %}
+            <img src="{{ article.featured_image.url }}"
+                 alt="{{ article.title }}"
+                 class="w-full object-contain max-h-60">
+            {% else %}
+            <img src="{% static 'img/default-article.jpg' %}"
+                 alt="{{ article.title }}"
+                 class="w-full object-contain max-h-60">
+            {% endif %}
+          </div>
+
+          <!-- Contenu -->
+          <div class="p-6">
+            <!-- Titre -->
+            <h3 class="text-xl font-bold mb-3">
+              <a href="{% url 'article_detail' article.slug %}" class="text-gray-900 hover:text-sequence transition duration-300">
+                {{ article.title }}
+              </a>
+            </h3>
+
+            <!-- Résumé -->
+            <p class="text-gray-600 mb-4 line-clamp-3">{{ article.summary|truncatewords:20 }}</p>
+
+            <!-- Méta infos -->
+            <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {{ article.published_at|date:"d F Y" }}
+              </div>
+
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {{ article.views_count }} vues
+              </div>
+            </div>
+
+            <!-- Lien -->
+            <div class="text-right">
+              <a href="{% url 'article_detail' article.slug %}"
+                 class="inline-flex items-center py-2 px-4 bg-white text-sequence text-sm font-medium rounded-lg border border-sequence hover:bg-sequence-light transition duration-300">
+                Lire la suite
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="mt-12 flex justify-center">
+      <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+           class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Précédent
+        </a>
+        {% else %}
+        <span class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-500 cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Précédent
+        </span>
+        {% endif %}
+
+        <span class="relative inline-flex items-center px-4 py-2 border border-sequence bg-sequence text-sm font-medium text-white">
+          Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+           class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          Suivant
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        {% else %}
+        <span class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-500 cursor-not-allowed">
+          Suivant
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </span>
+        {% endif %}
+      </nav>
+    </div>
+    {% endif %}
+  </div>
+</section>
+
+
+<!-- JavaScript pour les animations -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fadeElements = document.querySelectorAll('.animate-fade-in-up');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    fadeElements.forEach(element => {
+      observer.observe(element);
+    });
+  });
+</script>
+{% endblock %}

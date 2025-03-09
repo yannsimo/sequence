@@ -1,0 +1,239 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ category.name }} - Sequence{% endblock %}
+
+{% block extra_css %}
+<style>
+  /* Animation d'entrée */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease forwards;
+  }
+
+  .animate-delay-100 { animation-delay: 0.1s; }
+  .animate-delay-200 { animation-delay: 0.2s; }
+  .animate-delay-300 { animation-delay: 0.3s; }
+
+  .hover-scale {
+    transition: transform 0.3s ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .article-card {
+    transition: all 0.3s ease;
+  }
+
+  .article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- En-tête de catégorie -->
+<header class="bg-red-600 text-white">
+  <div class="container mx-auto px-4 py-10">
+    <div class="max-w-4xl mx-auto text-center">
+      <h1 class="text-3xl md:text-5xl font-extrabold mb-4 animate-fade-in-up opacity-0">
+        {{ category.name }}
+      </h1>
+
+      {% if category.description %}
+      <p class="text-lg md:text-xl text-white/90 max-w-3xl mx-auto animate-fade-in-up opacity-0 animate-delay-100">
+        {{ category.description }}
+      </p>
+      {% endif %}
+
+      <div class="mt-6 animate-fade-in-up opacity-0 animate-delay-200">
+        <span class="bg-white text-red-600 py-1 px-3 rounded-full text-sm font-semibold">
+          {{ articles.count }} article{{ articles.count|pluralize }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Vague décorative -->
+  <div class="bg-white">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 80" class="w-full text-red-600 fill-current">
+      <path d="M0,64L80,58.7C160,53,320,43,480,42.7C640,43,800,53,960,58.7C1120,64,1280,64,1360,64L1440,64L1440,0L1360,0C1280,0,1120,0,960,0C800,0,640,0,480,0C320,0,160,0,80,0L0,0Z"></path>
+    </svg>
+  </div>
+</header>
+
+<!-- Fil d'Ariane -->
+<div class="bg-gray-50 py-2">
+  <div class="container mx-auto px-4">
+    <div class="text-sm text-gray-600">
+      <a href="{% url 'home' %}" class="hover:text-red-600 transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <span class="text-gray-800 font-medium">{{ category.name }}</span>
+    </div>
+  </div>
+</div>
+
+<!-- Liste des articles -->
+<section class="py-12">
+  <div class="container mx-auto px-4">
+    <!-- Filtres (optionnel) -->
+    {% if articles.count > 10 %}
+    <div class="mb-10 bg-gray-50 rounded-lg p-4 max-w-4xl mx-auto">
+      <form action="" method="get" class="flex flex-wrap gap-4 items-center">
+        <div class="flex-grow">
+          <input type="text" name="search" placeholder="Rechercher dans cette catégorie..."
+                class="w-full py-2 px-4 rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition-colors">
+        </div>
+        <div>
+          <select name="sort" class="py-2 px-4 rounded-lg border-gray-300 focus:border-red-500 focus:ring focus:ring-red-200 transition-colors">
+            <option value="recent">Plus récents</option>
+            <option value="oldest">Plus anciens</option>
+            <option value="views">Plus vus</option>
+          </select>
+        </div>
+        <button type="submit" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+          Filtrer
+        </button>
+      </form>
+    </div>
+    {% endif %}
+
+    {% if articles %}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {% for article in articles %}
+      <div class="animate-fade-in-up opacity-0" style="animation-delay: {{ forloop.counter|add:2 }}00ms;">
+        <article class="article-card bg-white rounded-lg overflow-hidden shadow-md h-full">
+          <!-- Image -->
+          <div class="relative h-48 overflow-hidden">
+            {% if article.featured_image %}
+            <img src="{{ article.featured_image.url }}"
+                alt="{{ article.title }}"
+                class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+            {% else %}
+            <img src="{% static 'img/default-article.jpg' %}"
+                alt="{{ article.title }}"
+                class="w-full h-full object-cover transform hover:scale-105 transition duration-500">
+            {% endif %}
+          </div>
+
+          <!-- Contenu -->
+          <div class="p-4">
+            <!-- Titre -->
+            <h2 class="text-lg font-bold mb-2">
+              <a href="{% url 'article_detail' article.slug %}" class="text-gray-900 hover:text-red-600 transition-colors">
+                {{ article.title }}
+              </a>
+            </h2>
+
+            <!-- Résumé -->
+            <p class="text-gray-600 text-sm mb-3 line-clamp-2">{{ article.summary|truncatewords:15 }}</p>
+
+            <!-- Méta infos -->
+            <div class="flex justify-between items-center text-xs text-gray-500 mb-3">
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                {{ article.published_at|date:"d/m/Y" }}
+              </div>
+
+              <div class="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+                {{ article.views_count }}
+              </div>
+            </div>
+
+            <!-- Lien -->
+            <div class="text-right">
+              <a href="{% url 'article_detail' article.slug %}"
+                class="text-red-600 text-sm font-medium hover:underline inline-flex items-center">
+                Lire l'article
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </a>
+            </div>
+          </div>
+        </article>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="mt-10 flex justify-center">
+      <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}"
+           class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Précédent
+        </a>
+        {% else %}
+        <span class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-500 cursor-not-allowed">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Précédent
+        </span>
+        {% endif %}
+
+        <span class="relative inline-flex items-center px-4 py-2 border border-red-600 bg-red-600 text-sm font-medium text-white">
+          Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}"
+           class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+          Suivant
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </a>
+        {% else %}
+        <span class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-500 cursor-not-allowed">
+          Suivant
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </span>
+        {% endif %}
+      </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="text-center py-16 max-w-2xl mx-auto">
+      <div class="bg-gray-50 py-10 px-6 rounded-lg">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+        </svg>
+        <h2 class="text-2xl font-bold mb-2">Aucun article disponible</h2>
+        <p class="text-gray-600 mb-6">Nous n'avons pas encore d'articles dans cette catégorie.</p>
+        <a href="{% url 'home' %}" class="px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300 inline-block">
+          Retour à l'accueil
+        </a>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

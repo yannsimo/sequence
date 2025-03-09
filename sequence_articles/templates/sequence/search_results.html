@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Résultats de recherche pour "{{ query }}" - Sequence{% endblock %}
+
+{% block extra_css %}
+<style>
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease forwards;
+  }
+
+  .animate-delay-100 { animation-delay: 0.1s; }
+  .animate-delay-200 { animation-delay: 0.2s; }
+
+  .article-card {
+    transition: all 0.3s ease;
+  }
+
+  .article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Style pour la barre de recherche */
+  .search-bar {
+    transition: all 0.3s ease;
+  }
+
+  .search-bar:focus-within {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  mark {
+    background-color: rgba(233, 35, 107, 0.2);
+    padding: 0 2px;
+    border-radius: 2px;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Fil d'Ariane -->
+<div class="bg-gray-100">
+  <div class="container mx-auto px-4 py-2">
+    <div class="text-sm text-gray-600">
+      <a href="{% url 'home' %}" class="hover:text-red-600 transition-colors">Accueil</a>
+      <span class="mx-2">›</span>
+      <span class="text-gray-800 font-medium">Recherche</span>
+    </div>
+  </div>
+</div>
+
+<!-- En-tête de la recherche -->
+<header class="bg-white border-b border-gray-200">
+  <div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+      <!-- Barre de recherche -->
+      <form action="{% url 'search' %}" method="get" class="search-bar mb-8 flex rounded-lg overflow-hidden shadow-sm">
+        <input
+          type="text"
+          name="query"
+          placeholder="Rechercher un article..."
+          value="{{ query }}"
+          class="flex-grow py-3 px-4 border-0 focus:ring-0 focus:outline-none"
+          required
+        >
+        <button type="submit" class="bg-red-600 text-white px-6 hover:bg-red-700 transition-colors flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+          </svg>
+          Rechercher
+        </button>
+      </form>
+
+      <!-- Résumé des résultats -->
+      <div class="animate-fade-in-up opacity-0">
+        {% if query %}
+          <h1 class="text-2xl md:text-3xl font-bold mb-2">
+            Résultats de recherche pour "{{ query }}"
+          </h1>
+          <p class="text-gray-600">
+            {{ count }} article{{ count|pluralize }} trouvé{{ count|pluralize }}
+          </p>
+        {% else %}
+          <h1 class="text-2xl md:text-3xl font-bold mb-2">
+            Rechercher dans tous les articles
+          </h1>
+          <p class="text-gray-600">
+            Saisissez un terme de recherche pour trouver des articles
+          </p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Résultats de recherche -->
+<section class="py-10">
+  <div class="container mx-auto px-4">
+    <div class="max-w-4xl mx-auto">
+      {% if results %}
+        <div class="space-y-8">
+          {% for article in results %}
+          <article class="article-card bg-white rounded-lg p-6 shadow-sm animate-fade-in-up opacity-0" style="animation-delay: {{ forloop.counter|add:1 }}00ms;">
+            <!-- Titre et catégorie -->
+            <div class="mb-4">
+              {% if article.category %}
+              <a href="{% url 'category_detail' article.category.slug %}" class="inline-block mb-2 py-1 px-2 bg-red-100 text-red-600 text-xs font-semibold rounded">
+                {{ article.category.name }}
+              </a>
+              {% endif %}
+
+              <h2 class="text-xl font-bold mb-1">
+                <a href="{% url 'article_detail' article.slug %}" class="text-gray-900 hover:text-red-600 transition-colors">
+                  {{ article.title }}
+                </a>
+              </h2>
+
+              <!-- Méta-informations -->
+              <div class="flex items-center text-xs text-gray-500 mb-2">
+                <span class="flex items-center mr-4">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  {{ article.published_at|date:"d F Y" }}
+                </span>
+
+                <span class="flex items-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                  {{ article.views_count }} vues
+                </span>
+              </div>
+            </div>
+
+            <!-- Layout horizontal si image existe -->
+            <div class="{% if article.featured_image %}grid grid-cols-12 gap-4 items-center{% endif %}">
+              <!-- Image -->
+              {% if article.featured_image %}
+              <div class="col-span-12 sm:col-span-4">
+                <a href="{% url 'article_detail' article.slug %}" class="block overflow-hidden rounded-lg">
+                  <img src="{{ article.featured_image.url }}"
+                       alt="{{ article.title }}"
+                       class="w-full h-40 object-cover transform hover:scale-105 transition duration-300">
+                </a>
+              </div>
+              <div class="col-span-12 sm:col-span-8">
+              {% endif %}
+
+                <!-- Résumé -->
+                <p class="text-gray-600 mb-4 {% if not article.featured_image %}line-clamp-3{% endif %}">
+                  {{ article.summary|truncatewords:30 }}
+                </p>
+
+                <!-- Lien -->
+                <div class="{% if article.featured_image %}text-left{% else %}text-right{% endif %}">
+                  <a href="{% url 'article_detail' article.slug %}"
+                     class="inline-flex items-center py-2 px-4 bg-white text-red-600 text-sm font-medium rounded-lg border border-red-600 hover:bg-red-50 transition duration-300">
+                    Lire l'article
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </a>
+                </div>
+
+              {% if article.featured_image %}
+              </div>
+              {% endif %}
+            </div>
+          </article>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="mt-12 flex justify-center">
+          <nav class="inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+            <a href="?query={{ query }}&page={{ page_obj.previous_page_number }}"
+               class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Précédent
+            </a>
+            {% else %}
+            <span class="relative inline-flex items-center px-4 py-2 rounded-l-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-500 cursor-not-allowed">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+              Précédent
+            </span>
+            {% endif %}
+
+            <span class="relative inline-flex items-center px-4 py-2 border border-red-600 bg-red-600 text-sm font-medium text-white">
+              Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?query={{ query }}&page={{ page_obj.next_page_number }}"
+               class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+              Suivant
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </a>
+            {% else %}
+            <span class="relative inline-flex items-center px-4 py-2 rounded-r-md border border-gray-300 bg-gray-100 text-sm font-medium text-gray-500 cursor-not-allowed">
+              Suivant
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+              </svg>
+            </span>
+            {% endif %}
+          </nav>
+        </div>
+        {% endif %}
+
+      {% else %}
+        <!-- Aucun résultat -->
+        <div class="text-center py-12 animate-fade-in-up opacity-0">
+          <div class="bg-gray-50 py-10 px-6 rounded-lg max-w-lg mx-auto">
+            {% if query %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h2 class="text-2xl font-bold mb-2">Aucun résultat trouvé</h2>
+              <p class="text-gray-600 mb-6">Aucun article ne correspond à votre recherche "{{ query }}".</p>
+              <div class="space-y-3">
+                <p class="text-gray-600 text-sm">Suggestions :</p>
+                <ul class="text-gray-600 text-sm list-disc list-inside">
+                  <li>Vérifiez l'orthographe des termes de recherche.</li>
+                  <li>Essayez d'utiliser des mots-clés différents.</li>
+                  <li>Utilisez des termes plus généraux.</li>
+                </ul>
+              </div>
+            {% else %}
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto text-gray-400 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16l2.879-2.879m0 0a3 3 0 104.243-4.242 3 3 0 00-4.243 4.242zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h2 class="text-2xl font-bold mb-2">Commencez votre recherche</h2>
+              <p class="text-gray-600">Saisissez des termes de recherche pour trouver des articles.</p>
+            {% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- Catégories populaires -->
+<section class="bg-gray-50 py-10">
+  <div class="container mx-auto px-4">
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold mb-6 text-center">Parcourir par catégorie</h2>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        {% for category in categories %}
+        <a href="{% url 'category_detail' category.slug %}"
+           class="bg-white rounded-lg p-4 text-center shadow-sm hover:shadow-md transition-shadow duration-300">
+          <span class="block text-gray-900 font-medium hover:text-red-600 transition-colors">{{ category.name }}</span>
+          <span class="text-xs text-gray-500">{{ category.articles.count }} article{{ category.articles.count|pluralize }}</span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- JavaScript pour les animations -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const fadeElements = document.querySelectorAll('.animate-fade-in-up');
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+        }
+      });
+    }, {
+      threshold: 0.1
+    });
+
+    fadeElements.forEach(element => {
+      observer.observe(element);
+    });
+  });
+</script>
+{% endblock %}
