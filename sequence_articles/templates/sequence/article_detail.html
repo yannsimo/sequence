@@ -136,7 +136,7 @@
         {% if article.author.profile_image %}
         <img src="{{ article.author.profile_image.url }}" alt="{{ article.author.username }}" class="rounded-full w-10 h-10 mr-3">
         {% else %}
-        <img src="{% static 'img/avatar-default.jpg' %}" alt="{{ article.author.username }}" class="rounded-full w-10 h-10 mr-3">
+        <img src="{% static 'img/avatar-default.jpeg' %}" alt="{{ article.author.username }}" class="rounded-full w-10 h-10 mr-3">
         {% endif %}
         <div>
           <div class="font-medium text-gray-800">{{ article.author.get_full_name|default:article.author.username }}</div>
