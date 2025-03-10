@@ -1,4 +1,4 @@
- {% load static %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -7,23 +7,6 @@
     <title>{% block title %}Sequence{% endblock %}</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-      // Configuration de Tailwind avec la couleur personnalisée
-      tailwind.config = {
-        theme: {
-          extend: {
-            colors: {
-              sequence: {
-                DEFAULT: '#CE3131',
-                light: '#E54646',
-                dark: '#B52828',
-                50: '#FBE9E9'
-              }
-            }
-          }
-        }
-      }
-    </script>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Base Styles -->
@@ -34,27 +17,6 @@
 
         .transition-all {
             transition: all 0.3s ease;
-        }
-
-        /* Classes de couleur personnalisées */
-        .text-sequence {
-            color: #CE3131;
-        }
-
-        .bg-sequence {
-            background-color: #CE3131;
-        }
-
-        .border-sequence {
-            border-color: #CE3131;
-        }
-
-        .hover\:text-sequence:hover {
-            color: #CE3131;
-        }
-
-        .hover\:bg-sequence:hover {
-            background-color: #CE3131;
         }
     </style>
     <!-- Custom CSS -->
@@ -75,7 +37,7 @@
                 <div class="hidden md:flex space-x-6">
                     {% for category in categories %}
                     <a href="{% url 'category_detail' category.slug %}"
-                       class="text-gray-700 hover:text-sequence transition-all font-medium">
+                       class="text-gray-700 hover:text-red-600 transition-all font-medium">
                         {{ category.name }}
                     </a>
                     {% endfor %}
@@ -94,12 +56,12 @@
                 <div class="pt-4 pb-3 space-y-3">
                     {% for category in categories %}
                     <a href="{% url 'category_detail' category.slug %}"
-                       class="block text-gray-700 hover:text-sequence transition-all py-2">
+                       class="block text-gray-700 hover:text-red-600 transition-all py-2">
                         {{ category.name }}
                     </a>
                     {% endfor %}
-                    <a href="#" class="block text-gray-700 hover:text-sequence transition-all py-2">À propos</a>
-                    <a href="#" class="block text-gray-700 hover:text-sequence transition-all py-2">Contact</a>
+                    <a href="#" class="block text-gray-700 hover:text-red-600 transition-all py-2">À propos</a>
+                    <a href="#" class="block text-gray-700 hover:text-red-600 transition-all py-2">Contact</a>
                 </div>
             </div>
         </nav>
@@ -110,7 +72,7 @@
         {% if messages %}
         <div class="container mx-auto px-4 mt-4">
             {% for message in messages %}
-            <div class="p-4 mb-4 rounded-lg {% if message.tags == 'error' %}bg-sequence bg-opacity-10 text-sequence{% else %}bg-green-100 text-green-700{% endif %} flex items-center">
+            <div class="p-4 mb-4 rounded-lg {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %} flex items-center">
                 {% if message.tags == 'error' %}
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
                   <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
@@ -197,7 +159,7 @@
 
             <!-- Copyright -->
             <div class="mt-10 pt-8 border-t border-gray-800 text-center text-gray-400">
-                <p>&copy; {% now "Y" %} Sequence. Tous droits réservés. | Site développé avec <span class="text-sequence">❤</span> par SEQUENCE</p>
+                <p>&copy; {% now "Y" %} Sequence. Tous droits réservés. | Site développé avec <span class="text-red-500">❤</span> par SEQUENCE</p>
             </div>
         </div>
     </footer>
